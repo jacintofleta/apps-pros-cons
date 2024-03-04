@@ -2,7 +2,8 @@ import OpenAI from 'openai'
 
 const openai = new OpenAI({ apiKey: process.env.OPEN_AI_API_KEY })
 
-const puppeteer = require('puppeteer')
+import chromium from 'chrome-aws-lambda'
+import playwright from 'playwright-core'
 
 export async function POST(request) {
   const formData = await request.formData()
@@ -26,7 +27,15 @@ export async function POST(request) {
     baseURL = baseURL + '/reviews'
   }
 
-  const browser = await puppeteer.launch()
+  const browser = await playwright.chromium.launch({
+    args: [...chromium.args, '--font-render-hinting=none'], // This way fix rendering issues with specific fonts
+    executablePath:
+      process.env.NODE_ENV === 'production'
+        ? await chromium.executablePath
+        : '/usr/local/bin/chromium',
+    headless: process.env.NODE_ENV === 'production' ? chromium.headless : true,
+  })
+
   const page = await browser.newPage()
 
   const totalPages = 6
