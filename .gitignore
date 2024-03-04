@@ -13,6 +13,9 @@
 /.next/
 /out/
 
+# pupeteer cache
+/.cache
+
 # production
 /build
 
